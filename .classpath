@@ -7,7 +7,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/teamProject"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TeamProject0807_fork lib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/TProject lib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/teamproject0807_fork lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -55,6 +55,76 @@ public class ClientDAO {
 		return result;
 	}
 	
+	
+	//사용자 아이디 중복확인
+	public boolean  idDuplicateCheck(String id) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Boolean idcheck=false;
+
+		con = dbManager.connect();
+		if(con == null) {
+			System.out.println("idDuplicateCheck 접속 실패");
+		}else {
+			StringBuilder sb = new StringBuilder();
+			
+			try {
+				sb.append("select * from client where id=?");
+				pstmt = con.prepareStatement(sb.toString());
+				//바인드 변수 채워넣기
+				pstmt.setString(1, id);
+				
+				//쿼리 실행
+				rs = pstmt.executeQuery();
+				if(rs.next()) {	//커서를 한칸 이동시 true 가 반환된다면 레코드가 존재. 즉, 아이디 중복
+					idcheck = true;
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}finally {
+				dbManager.release(con, pstmt, rs);
+			}
+			
+		}
+		return idcheck;
+	}
+	
+	//사용자 닉네임 중복확인
+	public boolean nicknameDuplicateCheck(String nickname) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Boolean nicknamecheck = false;
+		
+		con = dbManager.connect();
+		if(con==null) {
+			System.out.println("nicknameDuplicateCheck 접속 실패");			
+		}else {
+			StringBuilder sb = new StringBuilder();
+			
+			try {
+				sb.append("select * from client where nickname =?");
+				pstmt = con.prepareStatement(sb.toString());
+				//바인드 변수 채워넣기
+				pstmt.setString(1, nickname);
+				
+				//쿼리 실행
+				rs = pstmt.executeQuery();
+				if(rs.next()) {	//커서 한칸 내렸을 때, 참이라면 = 값이 있다면 = 닉네임 중복
+					nicknamecheck = true;
+				}
+			} catch (SQLException e) {
+			
+				e.printStackTrace();
+			}finally {
+				dbManager.release(con, pstmt, rs);
+			}
+		}
+		return nicknamecheck;
+	}
+	
+	//사용자 로그인 메서드
 	//사용자 레코드 1건 검색
 	//사용자 로그인 시 사용
 	public Client login(Client client) {
