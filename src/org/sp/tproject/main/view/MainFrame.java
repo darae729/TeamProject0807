@@ -18,10 +18,22 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.sp.tproject.calendar.domain.Client;
+import org.sp.tproject.calendar.model.ClientDAO;
+import org.sp.tproject.calendar.model.PlanDAO;
 import org.sp.tproject.calendar.view.DiaryPage;
+//import org.sp.tproject.main.domain.Pomocount;
+//import org.sp.tproject.main.domain.Pomodate;
+//import org.sp.tproject.main.model.PomocountDAO;
+//import org.sp.tproject.main.model.PomodateDAO;
+import org.sp.tproject.member.view.LoginForm;
 import org.sp.tproject.member.view.MyPage;
 
+import util.DBManager;
+
 public class MainFrame extends JFrame{
+	LoginForm loginForm;
+	
 	JPanel p_north; //네비게이션 영역
 	JPanel p_content; //각 페이지 및 컨텐츠들이 배치될 메인 영역
 	
@@ -40,14 +52,26 @@ public class MainFrame extends JFrame{
 	int width=1230;
 	int height=800;
 	
+	//DB관련
+	DBManager dbManager=new DBManager();
+	//Pomodate pomodate;	
+	//Pomocount pomocount=new Pomocount();
+	ClientDAO clientDAO=new ClientDAO(dbManager);
+	//PomodateDAO pomodateDAO=new PomodateDAO(dbManager);
+	//PomocountDAO pomocountDAO=new PomocountDAO(dbManager);
+	PlanDAO planDAO=new PlanDAO(dbManager);
+	
+	//보안 때문에 보통 메서드로 함 -> 바꾸자.. 근데 얘 지금 null임, 클라이언트DTO는 로그인폼에서 땡겨옴
+	public Client client;
+	
 	public MainFrame() {
 		p_north=new JPanel();
 		p_content=new JPanel();
 		createNavi();
 		
 		pages=new Page[3]; //4
-		pages[MAIN]=new MainPage();
-		pages[DIARY]=new DiaryPage();
+		pages[MAIN]=new MainPage(this);
+		pages[DIARY]=new DiaryPage(this);
 		pages[MYPAGE]=new MyPage();
 		//pages[LOGOUT]=new LogIn();
 			
@@ -65,9 +89,12 @@ public class MainFrame extends JFrame{
 		add(p_content);
 		
 		setSize(width, height);
-		setVisible(true);
+		setVisible(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		//로그인폼 생성
+		loginForm=new LoginForm(this);
 		
 		//디폴트 페이지는 메인페이지
 		showHide(MAIN);
@@ -87,7 +114,12 @@ public class MainFrame extends JFrame{
 	}
 	
 	public void login() { //로그인 시 호출하는 메서드
-		
+		//1) 프레임창에 회원 닉네임 출력
+		this.setTitle(loginForm.clientDTO.getName()+" 님 안녕하세요~*");
+		//2) 현재 메인프레임을 보이게 처리
+		this.setVisible(true);
+		//3) 로그인폼을 보이지 않게 처리
+		loginForm.setVisible(false);
 	}
 	public void logout() { //로그아웃 시 호출하는 메서드
 		

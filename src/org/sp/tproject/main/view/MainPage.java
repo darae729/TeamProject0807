@@ -10,6 +10,8 @@ import javax.swing.border.LineBorder;
 //메인에 배치될 컨텐츠들을 담을 페이지
 //플레이어, 투두리스트 | 타이머, 프로그레스바 | 현재시간, 뽀모도로  
 public class MainPage extends Page{
+	MainFrame mainFrame;
+	
 	JPanel p_west; //플레이어, 투두리스트를 담을 왼쪽 패널
 	JPanel p_center; //타이머, 프로그레스바를 담을 중앙 패널
 	JPanel p_east; //현재시간, 토마토판을 담을 오른쪽 패널
@@ -18,7 +20,8 @@ public class MainPage extends Page{
 	Timer timer; //타이머
 	PomoPan pan; //토마토 판
 	
-	public MainPage() {
+	public MainPage(MainFrame mainFrame) {
+		this.mainFrame=mainFrame;
 		p_west=new JPanel();
 		p_center=new JPanel();
 		p_east=new JPanel();

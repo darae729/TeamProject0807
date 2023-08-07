@@ -1,74 +1,217 @@
 package org.sp.tproject.calendar.view;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import org.sp.tproject.calendar.domain.Icon;
+import org.sp.tproject.calendar.domain.Plan;
+
+import util.RoundedButton;
 
 //날짜 셀을 클릭하면, 상세 내용을 입력받을 수 있는 팝업창
-public class Popup extends JFrame{
+public class Popup extends JFrame implements ActionListener{
+	DiaryPage diaryPage; //각종 DAO를 참조하기 위해
+	
 	JLabel la_header; //날짜 제목 
+	JLabel border;
+	
+	JLabel title2;
+	JLabel memo;
+	JTextField t_title;
 	JTextArea area;
 	JPanel p_icon; //아이콘이 배치될 패널
-	String[] path= {"res/cloud.png","res/rain.png","res/snow.png","res/sunny.png"};
-	ArrayList<JLabel> la_icon; //아이콘 이미지를담게 될 라벨들
-	JButton bt;
-	JLabel la_selected; //유저가 선택한 라벨
-	NumCell numCell; //저장 버튼 누를때, 어떤 셀을 대상으로 아이콘을 반영할지를 알기위함..
-	int index; //사용자가 선택한 라벨의 index , 이 index로 아이콘 배열명에 접근할 수 있다.
 	
-	public Popup() {
-		la_header = new JLabel("날짜 나옴");
+	
+	//RoundedButton next;
+	//RoundedButton prev;
+	
+	JComboBox<ImageIcon> comboBox;
+	JComboBox<ImageIcon> comboBox2;
+	
+	List<Icon> iconList1;
+	List<Icon> iconList2;
+	
+	
+	String[] mark= {"img/naviIcon/calendar_bookmark.png","img/naviIcon/calendar_question.png","img/naviIcon/calendar_notes.png","img/naviIcon/calendar_clip.png","img/naviIcon/calendar_heart.png","img/naviIcon/calendar_star.png"};
+	String[] mood= {"img/naviIcon/calendar_happy.png","img/naviIcon/calendar_dead.png","img/naviIcon/calendar_fine.png","img/naviIcon/calendar_wow.png","img/naviIcon/calendar_sad.png","img/naviIcon/calendar_happy2.png"};
+	
+	RoundedButton bt;
+	
+	JLabel la_selected; //유저가 선택한 라벨
+	JLabel m_label;
+	JLabel m_label2;
+	
+	NumCell numCell; //저장 버튼 누를때, 어떤 셀을 대상으로 아이콘을 반영할지를 알기위함
+	int index; 
+
+	int dd; //해당 셀을 클릭할 때 날짜를 전달받기 위한 멤버변수 
+	
+	
+	String filename; //유저가 선택한 아이콘
+	
+	public Popup(DiaryPage diaryPage) {
+		this.diaryPage=diaryPage;
+		
+		la_header = new JLabel();
+		border = new JLabel();
+		m_label = new JLabel("mark");
+		m_label2 = new JLabel("mood");
+		
+		title2 = new JLabel("title");
+		memo = new JLabel("memo");
+		
+		t_title = new JTextField();
 		area = new JTextArea();
-		p_icon = new JPanel();
-		la_icon = new ArrayList<JLabel>();
-		bt = new JButton("저장");
+		bt = new RoundedButton("Save");
+		
+		//prev = new RoundedButton("<");
+		//next = new RoundedButton(">");
+		
+		
 		
 		//스타일 
-		la_header.setFont(new Font("돋움", Font.BOLD, 28));
-		area.setPreferredSize(new Dimension(380, 150));
-		p_icon.setPreferredSize(new Dimension(380,100));
-
+		la_header.setFont(new Font("yanol(reg)", Font.BOLD, 28));
+		title2.setFont(new Font("돋움)", Font.BOLD, 15));
+		memo.setFont(new Font("돋움)", Font.BOLD, 15));
+		
+		border.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		
+		border.setPreferredSize(new Dimension(300, 1));
+		title2.setPreferredSize(new Dimension(300, 25));
+		memo.setPreferredSize(new Dimension(300, 25));
+		t_title.setPreferredSize(new Dimension(300, 25));
+		area.setPreferredSize(new Dimension(300, 200));
+		
+		setBackground(Color.WHITE);
+		la_header.setBackground(Color.WHITE);
+		
+		comboBox = new JComboBox<ImageIcon>(createIcon());
+		comboBox2 = new JComboBox<ImageIcon>(createIcon2());
+		
+		comboBox.addActionListener(this);
+		comboBox2.addActionListener(this);
+		
 		setLayout(new FlowLayout());
 		
 		add(la_header);
-		add(area);
-		add(p_icon);
-		createIcon();
+		add(border);
+		add(title2);
+		add(t_title, BorderLayout.CENTER);
+		//add(prev);
+		add(memo);
+		add(area, BorderLayout.CENTER);
+		//add(next);
+		
+		
+		
+		add(m_label);
+		add(comboBox);
+		add(m_label2);
+		add(comboBox2);
 		add(bt);
 		
-		setBounds(400, 300, 400, 400);
-		//setVisible(true);
+		setBounds(400, 300, 350, 450);
+		setVisible(true);
 		setLocationRelativeTo(null);
+
+		/*
+		bt.addActionListener((e)->{
+			prev();
+		});	
 		
-		//저장버튼과 리스너 연결 
-		//재정의할 메서드가 1개일 경우 굳이 클래스 까지 만들 필요가 있나?...람다표현식..
+		bt.addActionListener((e)->{
+			next();
+		});	
+		*/
+		
 		bt.addActionListener((e)->{
 			save();
 		});	
 		
+		
+		t_title.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				System.out.println(t_title.getText().length());
+				
+				if(t_title.getText().length() >=10) {
+					String msg= t_title.getText().substring(0, 10);
+					t_title.setText(msg);
+				}
+			}
+		});
+		
 	}
 	
-	//유저가 선택한 아이콘 및 area의 값을 날짜셀(NumCell)에 반영
-	//이때, 아이콘은 NullCell의 iconBox 패널에 부착하자..왜? 나중에 아이콘을 지울때 
-	//iconBox패널의 하위 자식들을 전부 제거하는 방법을 이용하면 편하므로..
+	//데이터베이스에 일정 등록
 	public void save() {
-		//라벨을 생성하여 부착하기 
-		URL url=ClassLoader.getSystemResource(path[index]);
+		Plan plan = new Plan();
+		
+		int yy=diaryPage.cal.get(Calendar.YEAR);
+		int mm=diaryPage.cal.get(Calendar.MONTH);
+		int dd= diaryPage.cal.get(Calendar.DATE);
+		String diary_title=t_title.getText();
+		String diary_content=area.getText();
+		
+		plan.setYy(yy);
+		plan.setMm(mm+1);
+		plan.setDd(dd);
+		plan.setDiary_title(diary_title);
+		plan.setDiary_content(diary_content);
+		plan.setFilename(filename);
+		
+		plan.setClient(diaryPage.mainFrame.client);
+		
+		
+		int result = diaryPage.planDAO.insert(plan);
+		
+		if(result > 0) {
+			JOptionPane.showMessageDialog(this, "등록 성공!");
+		}
+		
+		
+		/*
+		if(result>0) {
+			Todo todo = new Todo();
+			todo.setPlan(plan);
+			todo.setWork(area.getText());
+			
+			result=diaryPage.todoDAO.insert(todo);
+			if(result>0) {
+				JOptionPane.showConfirmDialog(this, "일정등록 성공");				
+			}
+		}
+		*/
+	}
+	
+	
+	/*
+	public void save() {
+		URL url=ClassLoader.getSystemResource(mark[index]);
 		try {
 			BufferedImage buffImg = ImageIO.read(url);
 			Image image=buffImg;
@@ -76,33 +219,88 @@ public class Popup extends JFrame{
 			JLabel la_icon=new JLabel(new ImageIcon(image));
 			numCell.iconBox.add(la_icon);
 			numCell.updateUI(); //컴포넌트 새로고침
-			this.setVisible(false);
+			t_title.setText("");
+			
+			//this.setVisible(false);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
+	}
+	*/
+	
+	
+	//아이콘 생성 
+	public ImageIcon[] createIcon() {
+		iconList1 = new ArrayList<Icon>();
+		
+		ImageIcon[] icons=new ImageIcon[mark.length];
+		
+		for(int i=0;i<icons.length;i++) {
+			URL url=ClassLoader.getSystemResource(mark[i]);
+			try {
+				BufferedImage buffImg=ImageIO.read(url);
+				icons[i] = new ImageIcon(buffImg.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+				
+				Icon icon = new Icon();
+				icon.setFilename(mark[i]);
+				iconList1.add(icon);
+				
+			} catch (IOException e) { 
+				e.printStackTrace();
+			}			
+		}
+		return icons;
 		
 	}
 	
+	
 	//아이콘 생성 
-	public void createIcon() {
+	public ImageIcon[] createIcon2() {
+		iconList2 = new ArrayList<Icon>();
 		
-		for(int i=0;i<path.length;i++) {
-			URL url=ClassLoader.getSystemResource(path[i]);
+		ImageIcon[] icons=new ImageIcon[mood.length];
+		
+		for(int i=0;i<icons.length;i++) {
+			URL url=ClassLoader.getSystemResource(mood[i]);
+			try {
+				BufferedImage buffImg=ImageIO.read(url);
+				icons[i] = new ImageIcon(buffImg.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+				
+				Icon icon = new Icon();
+				icon.setFilename(mood[i]);
+				iconList2.add(icon);
+				
+			} catch (IOException e) { 
+				e.printStackTrace();
+			}			
+		}
+		return icons;
+		
+	}
+	
+	
+	
+	/*
+	public void createIconback() {
+		
+		for(int i=0;i<mark.length;i++) {
+			URL url=ClassLoader.getSystemResource(mark[i]);
 			try {
 				BufferedImage buffImg=ImageIO.read(url);
 				Image image=buffImg;
 				image=image.getScaledInstance(45, 45, Image.SCALE_SMOOTH);
 				
 				JLabel la=new JLabel(new ImageIcon(image));
-				la_icon.add(la);//리스트에 생성된 라벨 넣기 
+				la_icon.add(la); //리스트에 생성된 라벨 넣기 
 				p_icon.add(la);
 				
 				la.addMouseListener(new MouseAdapter() {
 					public void mouseClicked(MouseEvent e) {
 						la_selected=(JLabel)e.getSource();	
-						index=la_icon.indexOf(la_selected); //몇번째 라벨을 선택했는지 알아보기
-						System.out.println("당신이 선택한 라벨은 "+index+"번째 에요");
+						index=la_icon.indexOf(la_selected); 
+						System.out.println("선택된 라벨은 "+index+"번째 입니다");
 					}
 				});
 				
@@ -111,18 +309,39 @@ public class Popup extends JFrame{
 			}			
 		}
 	}
+	*/
 	
-	//윈도우 보이고, 날짜 출력 , 선택된 셀에 아이콘 등 적용
-	public void showPop(NumCell numCell,String header) {
-		this.setVisible(true);//보이게 
+	public void showPop(NumCell numCell, String header) {
+		this.setVisible(true);
 		la_header.setText(header);
 		
 		//셀에 아이콘 적용하기 
 		this.numCell = numCell;
 		
-		//numCell.iconBox.add(la_icon[몇번째?]);
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		JComboBox<ImageIcon> box=(JComboBox)e.getSource();
+		
+		if(box.equals(comboBox)) { //좌측이라면 
+			
+			//선택된 항목 가져오기
+			int index = box.getSelectedIndex();
+			Icon icon=iconList1.get(index);
+			System.out.println(icon.getFilename());
+			filename = icon.getFilename();
+			
+		}else if(box.equals(comboBox2)) {
+			
+			int index = box.getSelectedIndex();
+			Icon icon=iconList2.get(index);
+			System.out.println(icon.getFilename());
+			filename = icon.getFilename();
+		}
+		
 		
 	}
+	
 }
 
 

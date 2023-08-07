@@ -11,6 +11,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import util.StringManager;
+
 //날짜를 표현할 박스 정의
 public class NumCell extends Cell{
 	
@@ -44,7 +46,9 @@ public class NumCell extends Cell{
 				int mm=diaryPage.cal.get(Calendar.MONTH);
 				int n=Integer.parseInt(la_title.getText());
 				
-				//diaryPage.popup.showPop(NumCell.this , yy+"-"+StringManager.getNumString(mm+1)+"-"+StringManager.getNumString(n));  
+				diaryPage.popup.dd=n;
+				
+				diaryPage.popup.showPop(NumCell.this, yy+"-"+StringManager.getNumString(mm+1)+"-"+StringManager.getNumString(n));  
 			}
 		});	
 	}

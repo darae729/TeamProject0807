@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 
 import org.sp.tproject.calendar.domain.Client;
 import org.sp.tproject.calendar.model.ClientDAO;
+import org.sp.tproject.main.view.MainFrame;
 
 import util.DBManager;
 import util.HashConverter;
@@ -23,6 +24,8 @@ import util.HashConverter;
 
 
 public class LoginForm extends JFrame{
+	MainFrame mainFrame;
+	
 	JTextField login_id;
 	JPasswordField login_pass;
 	JButton login_bt;
@@ -37,8 +40,13 @@ public class LoginForm extends JFrame{
 	
 	//DAO를 이용하여 db관련 업무 수행
 	ClientDAO clientDAO;
-	public LoginForm() {
+	
+	public Client clientDTO;
+		
+	public LoginForm(MainFrame mainFrame) {
 		super("사용자 로그인");
+		this.mainFrame=mainFrame;
+		
 		login_id = new JTextField("아이디를 입력하세요");
 		login_pass = new JPasswordField("비밀번호를 입력하세요");
 		login_bt = new JButton("로그인");
@@ -120,8 +128,6 @@ public class LoginForm extends JFrame{
 			}
 		});
 		
-		
-		
 	}
 	
 	public void loginCheck() {
@@ -133,22 +139,26 @@ public class LoginForm extends JFrame{
 		Client client = new Client();	//empty
 		client.setId(id);	//아이디 대입
 		client.setPass(hashConverter.convertToHash(new String(login_pass.getPassword())));	//비밀번호 대입
-		Client clientDTO = clientDAO.login(client);
+		clientDTO = clientDAO.login(client);
 		System.out.println(client.getId());
 		System.out.println(client.getPass());
 		
 		if(clientDTO == null) {	//로그인 실패
 			JOptionPane.showMessageDialog(this, "로그인실패");
 			
-		}else {
+		}else { //로그인 성공
 			JOptionPane.showMessageDialog(this, "로그인성공");
+			mainFrame.login();
+			mainFrame.client=clientDTO;
 		}
 		
 		
 	}
 	
+	/*
 	public static void main(String[] args) {
 		new LoginForm();
 	}
+	*/
 	
 }

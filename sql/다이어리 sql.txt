@@ -1,0 +1,39 @@
+
+----------------------------------
+-- 일정
+----------------------------------
+create table plan(
+  plan_idx number primary key 
+  , yy number 
+  , mm number 
+  , dd number 
+  , diary_title varchar2(40)
+  , diary_content varchar2(200)
+  , filename clob
+  
+  -- 누구의 일정?
+  , client_idx  number 
+  , constraint  fk_client_plan foreign key(client_idx) references client(client_idx)
+);
+
+create sequence seq_plan
+increment by 1
+start with 1;
+
+----------------------------------
+-- 팀
+----------------------------------
+insert into client(client_idx, id, pass, name, photo)
+values(seq_client.nextval, 'darae', '1234', '다래', 'profile.png');
+
+commit;
+
+
+
+---------------------------------
+-- 이런 오류가 뜨면서 테이블이 만들어지지 않을때..
+-- unknown command beginning ", client_i..." - rest of line ignored.
+---------------------------------
+
+set sqlblanklines on;
+

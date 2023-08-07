@@ -9,13 +9,18 @@ import java.util.Calendar;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.Popup;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 
+import org.sp.tproject.calendar.domain.Client;
+import org.sp.tproject.calendar.domain.Plan;
+import org.sp.tproject.calendar.model.ClientDAO;
+import org.sp.tproject.calendar.model.IconDAO;
+import org.sp.tproject.calendar.model.PlanDAO;
+import org.sp.tproject.main.view.MainFrame;
 import org.sp.tproject.main.view.Page;
 
+import util.DBManager;
 import util.RoundedButton;
 import util.StringManager;
 
@@ -25,11 +30,13 @@ public class DiaryPage extends Page{
 	JPanel p_west;
 	JPanel p_center;
 	//JPanel p_east;
+	MainFrame mainFrame;
 	
 	
 	RoundedButton bt_prev;
 	RoundedButton bt_next;
 	JLabel la_title;
+	JLabel la_title2;
 	String[] dayTitle= {"SUN","MON","TUE","WED","THU","FRI","SAT"};
 	
 	Calendar cal; //이전, 다음 버튼등에 의해 조작될 날짜 객체
@@ -39,12 +46,26 @@ public class DiaryPage extends Page{
 	int width=1230;
 	int height=800;
 	
+	
 	//날짜 셀 
 	NumCell[][] numCells=new NumCell[6][7]; 
 	
+	
+	
+	//데이터베이스
+	DBManager dbManager = new DBManager();
+	ClientDAO clientDAO = new ClientDAO(dbManager);
+	IconDAO iconDAO = new IconDAO(dbManager);
+	PlanDAO planDAO = new PlanDAO(dbManager);
+	
+	Client client;
+	
 	Popup popup;
 	
-	public DiaryPage() {
+	
+	public DiaryPage(MainFrame mainFrame) {
+		this.mainFrame=mainFrame;
+		
 		setBackground(Color.WHITE);
 		Border border;
 		border=new LineBorder(Color.LIGHT_GRAY, 1, true);
@@ -54,9 +75,10 @@ public class DiaryPage extends Page{
 		p_west = new JPanel();
 		p_center = new JPanel();
 		//p_east = new JPanel();
+		la_title = new JLabel("2023");
+		la_title2 = new JLabel("08");
 		bt_prev = new RoundedButton("◀");
 		bt_next = new RoundedButton("▶");
-		la_title = new JLabel("2000-11-01");
 		
 		cal = Calendar.getInstance(); //날짜 객체 생성(디폴트=현재날짜)
 		
@@ -66,15 +88,16 @@ public class DiaryPage extends Page{
 		
 	
 		//스타일 
-		la_title.setFont(new Font("돋움", Font.BOLD, 20));
-		
+		la_title2.setFont(new Font("arial", Font.BOLD, 70));
+		la_title.setFont(new Font("arial", Font.BOLD, 35));
+
 		la_title.setBackground(Color.WHITE);
 		p_center.setBackground(Color.WHITE);
 		p_west.setBackground(Color.WHITE);
 		
 		//p_north.setBackground(Color.WHITE);
 		
-		p_west.setPreferredSize(new Dimension(200, 700));
+		p_west.setPreferredSize(new Dimension(100, 700));
 		p_center.setPreferredSize(new Dimension(750, 800));
 		//p_east.setPreferredSize(new Dimension(100, 900));
 		
@@ -83,12 +106,12 @@ public class DiaryPage extends Page{
 		
 		
 		//조립
-		p_west.add(bt_prev);
+		p_west.add(la_title2);
 		p_west.add(la_title);
+		p_west.add(bt_prev);
 		p_west.add(bt_next);
 		
 		p_west.setLayout(new FlowLayout());
-		
 		
 		//add(p_north, BorderLayout.NORTH);
 		add(p_west, BorderLayout.WEST);
@@ -101,10 +124,9 @@ public class DiaryPage extends Page{
 		
 		setSize(width, height);
 		setVisible(true);
+		
 
 		
-		//팝업창 부착
-
 		
 		
 		bt_prev.addActionListener((e)->{
@@ -115,8 +137,12 @@ public class DiaryPage extends Page{
 			next();
 		});
 		
+		login();
+		//getPlanList();
 		
 	}
+	
+	
 	
 	//셀 만들기 
 	public void createCell() {
@@ -148,14 +174,15 @@ public class DiaryPage extends Page{
 		int year=cal.get(Calendar.YEAR); 
 		int mm=cal.get(Calendar.MONTH); 
 
-		la_title.setText(year+"-"+StringManager.getNumString(mm+1));
+		la_title.setText(StringManager.getNumString(year));
+		la_title2.setText(StringManager.getNumString(mm+1));
 	}
 	
 	//이전 날짜 처리 
 	public void prev() {
 		//다음 월 처리 
 		int mm=cal.get(Calendar.MONTH);
-		cal.set(Calendar.MONTH, mm-1); //조작
+		cal.set(Calendar.MONTH, 1); //조작
 		printTitle();//제목출력
 		printNum();//날짜출력
 	}
@@ -164,7 +191,7 @@ public class DiaryPage extends Page{
 	public void next() {
 		//다음 월 처리 
 		int mm=cal.get(Calendar.MONTH);
-		cal.set(Calendar.MONTH, mm+1); //조작
+		cal.set(Calendar.MONTH, -1); //조작
 		printTitle();//제목출력
 		printNum();//날짜출력
 		
@@ -211,12 +238,11 @@ public class DiaryPage extends Page{
 		}
 		
 		
-		int startDay=getStartDayOfWeek(); //해당 월이 무슨 요일부터 시작하는지 그 값을 얻기
-		int lastDate=getLastDateOfMonth(); //해당 월이 몇일까지 있는지 그 값을 얻기
+		int startDay=getStartDayOfWeek(); //해당 월이 무슨 요일부터 시작하는지 값을 얻기
+		int lastDate=getLastDateOfMonth(); //해당 월이 며칠까지 있는지 그 값을 얻기
 		
-		System.out.println(lastDate+"까지에요");
+		System.out.println(lastDate+"까지입니다");
 		
-		//각셀에 알맞는 숫자 채우기 
 		int count=0; //셀의 순번을 체크하기 위한 변수
 		int num=0; //실제 날짜를 담당할 변수
 		
@@ -229,9 +255,35 @@ public class DiaryPage extends Page{
 				}
 			}
 		}
-		
 	}
 
+	public void login() {
+		//인증이 성공되면 DTO 반환
+		
+		//현아씨가 자료를 공유안해서 억지로 테스트하자 
+		
+		Client client = new Client();
+		client.setId("darae");
+		client.setClient_idx(1);
+		
+		
+		//client=clientDAO.loginCheck(dto);
+	
+	}
+	
+	//로그인한 회원이 보유한 일정 및 todo 가져오기
+	public void getPlanList() {
+		int yy=cal.get(Calendar.YEAR);//yy
+		int mm=cal.get(Calendar.MONTH);//mm
+		
+		Plan plan = new Plan(); //empty
+		plan.setClient(client);
+		plan.setYy(yy);
+		plan.setMm(mm);
+		
+		planDAO.selectAll(plan);
+	}
+	
 }
 
 
