@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -116,9 +118,9 @@ public class RegistForm extends JFrame{
 		
 		regist_bt = new JButton("가입하기");
 		//폰트
-		Font regist_la_font = new Font("돋움", Font.PLAIN, 20);
-		Font regist_bt_font = new Font("돋움", Font.BOLD, 20);
-		Font regist_info_font = new Font("돋움", Font.BOLD, 18);
+		Font regist_la_font = new Font("goyang", Font.PLAIN, 20);
+		Font regist_bt_font = new Font("goyang", Font.BOLD, 20);
+		Font regist_info_font = new Font("goyang", Font.BOLD, 18);
 		regist_la_name.setFont(regist_la_font);
 		regist_t_name.setFont(regist_la_font);
 		regist_la_id.setFont(regist_la_font);
@@ -256,6 +258,26 @@ public class RegistForm extends JFrame{
 				
 			}
 		});
+		//아이디 중복 체크 버튼을 눌렀을 때..
+		regist_bt_id.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean idcheck =clientDAO.idDuplicateCheck(regist_t_id.getText());
+				//idcehck 가 true 라면.. 
+				//아이디가 중복된다면
+				if(idcheck) {
+					JOptionPane.showMessageDialog(RegistForm.this, "이미 사용 중인 아이디 입니다.");
+					regist_t_id.setText("");
+				}else {
+					JOptionPane.showMessageDialog(RegistForm.this, "사용할 수 있는 아이디 입니다.");
+				}
+			}
+		});
+		//이메일 칸에 마우스 올리면 텍스트 필드 초기화
+		regist_t_email.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				regist_t_email.setText("");
+			}
+		});
 		//패스워드 칸에 작성 글자 수가 일정 수준 넘으면 가입 버튼 활성화
 		regist_t_pass.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
@@ -275,13 +297,43 @@ public class RegistForm extends JFrame{
 				registBtEnable();
 			}
 		});
+		
+		//닉네임 칸에 작성 글자 수가 일정 수준 넘으면 가입 버튼 활성화
+		regist_t_nickname.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				registBtEnable();
+				int key = e.getKeyCode();
+				if(key == KeyEvent.VK_BACK_SPACE) {
+					registBtDisable();
+				}
+			}
+		});
+		//닉네임 중복 체크 버튼을 눌렀을 때...
+		regist_bt_nickname.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				boolean nicknamecheck = clientDAO.nicknameDuplicateCheck(regist_t_nickname.getText());
+				//nicknamecheck 가 true 라면...
+				//닉네임이 중복된다면
+				if(nicknamecheck) {
+					JOptionPane.showMessageDialog(RegistForm.this, "이미 사용 중인 닉네임 입니다.");
+					regist_t_nickname.setText("");
+				}else {
+					JOptionPane.showMessageDialog(RegistForm.this, "사용할 수 있는 닉네임 입니다.");
+					
+				}
+				
+			}
+		});
+		
 		//이메일 칸에 마우스 올리면 텍스트 필드 초기화
 		regist_t_email.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				System.out.println(regist_t_email.getText());
+				//System.out.println(regist_t_email.getText());
 				//실패.. 확인 필요
 				if(regist_t_email.getText() == "이메일을 입력하세요") {
 					regist_t_email.setText("");
+					System.out.println("초기 이메일 입력");
 				}
 			}
 		});
@@ -290,42 +342,52 @@ public class RegistForm extends JFrame{
 			public void keyReleased(KeyEvent e) {
 				registBtEnable();
 				int key = e.getKeyCode();
-				//만약 아이디 칸을 수정해서 조건을 만족시키지 못하면 가입 버튼 비활성화
+				//만약 이메일 칸을 수정해서 조건을 만족시키지 못하면 가입 버튼 비활성화
 				if(key == KeyEvent.VK_BACK_SPACE) {
 					registBtDisable();
-					System.out.println(regist_t_id.getText().length());
+					//System.out.println(regist_t_id.getText().length());
 				}
 
 			}
 		});
 		//이메일 도메인 선택하면 가입 버튼 활성화
-		regist_t_email_domain.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
+//		regist_t_email_domain.addMouseListener(new MouseAdapter() {
+//			public void mouseClicked(MouseEvent e) {
+//				registBtEnable();
+//				System.out.println("이메일 도메인 선택했어요");
+//
+//			}
+//		});
+		regist_t_email_domain.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				registBtEnable();
+				
 			}
 		});
 		
-		//모든 칸을 입력하면 등록 버튼 활성화
-		registBtEnable();
 		
 		regist_bt.addActionListener((e)->{
 			regist();
 		});
 	}
 	
-	public void passCheck() {
+	//비밀번호 일치 확인
+	public boolean passCheck() {
 		//사용자가 처음 입력한 비밀번호와 비밀번호 확인에 누름 비밀번호가 일치하는지 확인
 		String pass = new String(regist_t_pass.getPassword());
 		String pass_check = new String(regist_t_pass_check.getPassword());
-//		System.out.println(pass);
-//		System.out.println(pass_check);
+		System.out.println(pass);
+		System.out.println(pass_check);
+		//비밀번호가 일치한다면..
 		boolean ox = (pass == pass_check);
-//		System.out.println(ox);
-		if(pass == pass_check) {	
-			System.out.println("키보드 누름");
+		//비밀번호가 일치한다면 true 반환
+		System.out.println(ox);
+		if(pass.equals(pass_check)) {	
+			System.out.println("비밀번호 일치함");
 			regist_la_pass_check_info.setText("비밀번호가 일치합니다.");
 		}
 		
+		return ox;
 		
 	}
 	//등록 버튼 활성화
@@ -334,7 +396,6 @@ public class RegistForm extends JFrame{
 		
 		//이름 텍스트필드 글자수
 		int name_text = regist_t_name.getText().length();	
-		System.out.println(name_text);
 		//아이디  텍스트필드 글자수
 		int id_text = regist_t_id.getText().length();
 		//패스워드 텍스트 필드 글자수
@@ -344,14 +405,17 @@ public class RegistForm extends JFrame{
 		//이메일 텍스트필드 글자수
 		int email_text = regist_t_email.getText().length();
 		//이메일 도메인 선택 여부
-		System.out.println(regist_t_email_domain.getSelectedItem());
-		
-		String email_domain_text =  (String)regist_t_email_domain.getSelectedItem();
-		boolean email_domain_check = false;
-		if(email_domain_text == "naver.com") {
-			System.out.println("네이버");
-		}
-		if((name_text>3) && (id_text >3)&&(pass_text >3) && (nickname_text >3) && (email_text > 3)) {
+		//System.out.println(regist_t_email_domain.getSelectedItem());
+		int email_domain_index = regist_t_email_domain.getSelectedIndex();
+		//domain 의 selected 값을 비교해서.. 
+//		String etext =  (String)regist_t_email_domain.getSelectedItem();
+//		boolean email_domain_check = false;
+//		if(etext == "naver.com" || etext == "google.com" || etext == "daum.net") {
+//			email_domain_check = true;
+//		}
+		//비밀번호가 일치해야 등록 버튼 활성화
+		boolean passcheck =(regist_la_pass_check_info.getText()).equals("비밀번호가 일치합니다.");
+		if((name_text>2) && (id_text >3)&&(pass_text >3) && passcheck && (nickname_text >3) && (email_text > 3) && (email_domain_index>0)) {
 			
 			regist_bt_flag = true;
 			regist_bt.setEnabled(regist_bt_flag);	//등록 버튼 활성화
@@ -374,9 +438,9 @@ public class RegistForm extends JFrame{
 		int email_text = regist_t_email.getText().length();
 		
 		
-		if((name_text <= 3) || (id_text <= 3) ||(pass_text >3)|| (nickname_text <= 3) ||  (email_text <= 3)) {
+		if((name_text <= 1) || (id_text <= 3) ||(pass_text >3)|| (nickname_text <= 3) ||  (email_text <= 3)) {
 				
-			regist_bt.setEnabled(false);	//등록 버튼 활성화
+			regist_bt.setEnabled(false);	//등록 버튼 비활성화
 		}
 	}
 	public void regist() {
