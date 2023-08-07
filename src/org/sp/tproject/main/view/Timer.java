@@ -32,8 +32,10 @@ public class Timer extends JPanel implements Runnable {
 	Thread tt;
 
 	public boolean flag = false; // 타이머를 제어하는 플래그
+	
+	PomoPan pan; //토마토 판 : 25분 될때마다 토마토를 붙이기 위해
 
-	public Timer() {
+	public Timer(PomoPan pan) {
 		// setSec();
 		String timer = StringManager.getNumString(min) + " : " + StringManager.getNumString(sec);
 		la_worktap = new JLabel(" pomodoro");
@@ -41,6 +43,8 @@ public class Timer extends JPanel implements Runnable {
 		label = new JLabel(timer);
 		bt_start = new RoundedButton("▶");
 		bt_pause = new RoundedButton("⏸");
+		
+		this.pan=pan;
 
 		setLayout(new FlowLayout());
 		// setLayout(new BorderLayout());
@@ -110,7 +114,7 @@ public class Timer extends JPanel implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(10);
 				
 				if(flag){
 					setSec();
@@ -135,10 +139,12 @@ public class Timer extends JPanel implements Runnable {
 
 	public int setMin() { // 분을 설정하는 메서드
 		min++;
-		if (min == 25) {
+		if (min == 2) { //25분이 되면
 			min = 0;
-			// 타이머멈춤
+			//1) 타이머멈춤
 			flag=false;
+			//2) 토마토 판에 토마토 1개 생성
+			pan.addPomo();
 		}
 
 		return min;

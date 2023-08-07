@@ -37,4 +37,32 @@ insert into client(client_idx, name, id, pass, nickname, email)
 
 commit;
 
+--날짜 테이블 만들기+외래키(client_idx)
+create table pomodate(
+	pomodate_idx number primary key
+	, yy number
+	, mm number
+	, dd number
+	, client_idx number
+	, constraint fk_cidx foreign key(client_idx) references client(client_idx)
+);
+
+--토마토 테이블 만들기+외래키(pomodate_idx)
+create table pomocount(
+	pomocount_idx number primary key
+	, tomato number
+	, pomodate_idx number
+	, constraint fk_pmidx foreign key(pomodate_idx) references pomodate(pomodate_idx)
+);
+
+--시퀀스 만들기 (날짜테이블)
+create sequence seq_pomodate
+increment by 1
+start with 1;
+
+--시퀀스 만들기 (토마토테이블)
+create sequence seq_pomocount
+increment by 1
+start with 1;
+
 

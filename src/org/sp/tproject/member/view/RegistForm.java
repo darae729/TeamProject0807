@@ -4,6 +4,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -52,7 +57,7 @@ public class RegistForm extends JFrame{
 	JLabel regist_la_email_link;
 	JComboBox regist_t_email_domain;
 	
-	
+	Boolean regist_bt_flag=false;	//가입버튼 활성화, 비활성화 여부(처음은 비활성화
 	JButton regist_bt;	//가입 버튼
 	
 	//DB 관련
@@ -81,7 +86,7 @@ public class RegistForm extends JFrame{
 		regist_p_pass_check = new JPanel();
 		regist_la_pass_check = new JLabel("비밀번호 확인");
 		regist_t_pass_check = new JPasswordField();
-		regist_la_pass_check_info = new JLabel("비밀번호를 확인하세요");
+		regist_la_pass_check_info = new JLabel("");
 		
 		regist_p_nickname = new JPanel();
 		regist_la_nickname = new JLabel("닉네임");
@@ -201,6 +206,7 @@ public class RegistForm extends JFrame{
 		
 
 		add(regist_bt);
+		regist_bt.setEnabled(regist_bt_flag);	//처음에는 버튼 비활성화
 		
 		
 		//전체 프레임 사이즈
@@ -209,9 +215,169 @@ public class RegistForm extends JFrame{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		
+
+			
+		regist_t_pass_check.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+//				int key = e.getKeyCode();
+//				if(key == KeyEvent.VK_ENTER) {
+//					
+//				}
+				passCheck();
+			}
+		});
+//		//이름 칸에 마우스 올리면 텍스트 필드 초기화
+//		regist_t_name.addMouseListener(new MouseAdapter() {
+//			public void mouseClicked(MouseEvent e) {
+//			}
+//		});
+		//이름 칸에 작성 글자 수가 일정 수준 넘으면 가입 버튼 활성화
+		regist_t_name.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				registBtEnable();
+				int key = e.getKeyCode();
+				//만약 이름 칸을 수정해서 조건을 만족시키지 못하면 가입 버튼 비활성화
+				if(key == KeyEvent.VK_BACK_SPACE) {
+					registBtDisable();
+				}
+			}
+		});
+		//아이디 칸에 작성 글자 수가 일정 수준 넘으면 가입 버튼 활성화
+		regist_t_id.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				registBtEnable();
+				int key = e.getKeyCode();
+				//만약 아이디 칸을 수정해서 조건을 만족시키지 못하면 가입 버튼 비활성화
+				if(key == KeyEvent.VK_BACK_SPACE) {
+					registBtDisable();
+					System.out.println(regist_t_id.getText().length());
+				}
+				
+				
+			}
+		});
+		//패스워드 칸에 작성 글자 수가 일정 수준 넘으면 가입 버튼 활성화
+		regist_t_pass.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				registBtEnable();
+				int key = e.getKeyCode();
+				//만약 패스워드 칸을 수정해서 조건을 만족시키지 못하면 가입 버튼 비활성화
+				if(key == KeyEvent.VK_BACK_SPACE) {
+					registBtDisable();
+					System.out.println(regist_t_id.getText().length());
+				}
+
+			}
+		});
+		//패스워드 체크 칸에 작성 글자 수가 일정 수준 넘으면 가입 버튼 활성화
+		regist_t_pass_check.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				registBtEnable();
+			}
+		});
+		//이메일 칸에 마우스 올리면 텍스트 필드 초기화
+		regist_t_email.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				System.out.println(regist_t_email.getText());
+				//실패.. 확인 필요
+				if(regist_t_email.getText() == "이메일을 입력하세요") {
+					regist_t_email.setText("");
+				}
+			}
+		});
+		//이메일 칸에 작성 글자 수가 일정 수준 넘으면 가입 버튼 활성화
+		regist_t_email.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				registBtEnable();
+				int key = e.getKeyCode();
+				//만약 아이디 칸을 수정해서 조건을 만족시키지 못하면 가입 버튼 비활성화
+				if(key == KeyEvent.VK_BACK_SPACE) {
+					registBtDisable();
+					System.out.println(regist_t_id.getText().length());
+				}
+
+			}
+		});
+		//이메일 도메인 선택하면 가입 버튼 활성화
+		regist_t_email_domain.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				registBtEnable();
+			}
+		});
+		
+		//모든 칸을 입력하면 등록 버튼 활성화
+		registBtEnable();
+		
 		regist_bt.addActionListener((e)->{
 			regist();
 		});
+	}
+	
+	public void passCheck() {
+		//사용자가 처음 입력한 비밀번호와 비밀번호 확인에 누름 비밀번호가 일치하는지 확인
+		String pass = new String(regist_t_pass.getPassword());
+		String pass_check = new String(regist_t_pass_check.getPassword());
+//		System.out.println(pass);
+//		System.out.println(pass_check);
+		boolean ox = (pass == pass_check);
+//		System.out.println(ox);
+		if(pass == pass_check) {	
+			System.out.println("키보드 누름");
+			regist_la_pass_check_info.setText("비밀번호가 일치합니다.");
+		}
+		
+		
+	}
+	//등록 버튼 활성화
+	public void registBtEnable() {
+		//이름, 아이디, 비밀번호, 비밀번호 확인, 닉네임, 이메일
+		
+		//이름 텍스트필드 글자수
+		int name_text = regist_t_name.getText().length();	
+		System.out.println(name_text);
+		//아이디  텍스트필드 글자수
+		int id_text = regist_t_id.getText().length();
+		//패스워드 텍스트 필드 글자수
+		int pass_text = new String(regist_t_pass.getPassword()).length();
+		//닉네임 텍스트필드 글자수
+		int nickname_text = regist_t_nickname.getText().length();
+		//이메일 텍스트필드 글자수
+		int email_text = regist_t_email.getText().length();
+		//이메일 도메인 선택 여부
+		System.out.println(regist_t_email_domain.getSelectedItem());
+		
+		String email_domain_text =  (String)regist_t_email_domain.getSelectedItem();
+		boolean email_domain_check = false;
+		if(email_domain_text == "naver.com") {
+			System.out.println("네이버");
+		}
+		if((name_text>3) && (id_text >3)&&(pass_text >3) && (nickname_text >3) && (email_text > 3)) {
+			
+			regist_bt_flag = true;
+			regist_bt.setEnabled(regist_bt_flag);	//등록 버튼 활성화
+		}
+
+	}
+	//등록 버튼 비활성화
+	public void registBtDisable() {
+		//이름, 아이디, 비밀번호, 비밀번호 확인, 닉네임, 이메일
+		
+		//이름 텍스트필드 글자수
+		int name_text = regist_t_name.getText().length();	
+		//아이디  텍스트필드 글자수
+		int id_text = regist_t_id.getText().length();
+		//패스워드 텍스트 필드 글자수
+		int pass_text = new String(regist_t_pass.getPassword()).length();
+		//닉네임 텍스트필드 글자수
+		int nickname_text = regist_t_nickname.getText().length();
+		//이메일 텍스트필드 글자수
+		int email_text = regist_t_email.getText().length();
+		
+		
+		if((name_text <= 3) || (id_text <= 3) ||(pass_text >3)|| (nickname_text <= 3) ||  (email_text <= 3)) {
+				
+			regist_bt.setEnabled(false);	//등록 버튼 활성화
+		}
 	}
 	public void regist() {
 		//db에 가입한 사용자 정보 넣기
@@ -242,6 +408,7 @@ public class RegistForm extends JFrame{
 		}
 		
 	}
+	
 
 	public static void main(String[] args) {
 		new RegistForm();
