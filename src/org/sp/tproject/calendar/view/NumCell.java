@@ -24,7 +24,7 @@ public class NumCell extends Cell{
 		
 		this.diaryPage = diaryPage;
 		iconBox = new JPanel();
-		iconBox.setBackground(Color.WHITE);
+		iconBox.setBackground(Color.YELLOW);
 		
 		add(iconBox);
 		
@@ -32,7 +32,6 @@ public class NumCell extends Cell{
 		la_title.setFont(new Font("돋움", Font.BOLD, 15));
 		la_title.setPreferredSize(new Dimension(100,95));
 		la_title.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		//la_title.setBorder(BorderFactory.createEmptyBorder(1, 0, 1, 0));
 		
 		la_title.setHorizontalAlignment(JLabel.LEFT);
 		la_title.setVerticalAlignment(JLabel.TOP);
@@ -46,8 +45,7 @@ public class NumCell extends Cell{
 				int mm=diaryPage.cal.get(Calendar.MONTH);
 				int n=Integer.parseInt(la_title.getText());
 				
-				diaryPage.popup.dd=n;
-				
+				diaryPage.popup.dd=n;			
 				diaryPage.popup.showPop(NumCell.this, yy+"-"+StringManager.getNumString(mm+1)+"-"+StringManager.getNumString(n));  
 			}
 		});	

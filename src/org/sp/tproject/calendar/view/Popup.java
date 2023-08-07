@@ -24,6 +24,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -75,7 +76,8 @@ public class Popup extends JFrame implements ActionListener{
 	
 	public Popup(DiaryPage diaryPage) {
 		this.diaryPage=diaryPage;
-			
+		
+		//p_icon = new JPanel();
 		la_header = new JLabel("날짜 나옴");
 		border = new JLabel();
 		mark_text = new JLabel("mark");
@@ -126,12 +128,14 @@ public class Popup extends JFrame implements ActionListener{
 		//add(next);
 		
 		
+		//add(p_icon);
 		
 		add(mark_text);
 		add(comboBox);
 		add(mood_text);
 		add(comboBox2);
 		createIcon();
+		createIcon2();
 		add(bt);
 		
 		setBounds(400, 300, 350, 450);
@@ -184,8 +188,14 @@ public class Popup extends JFrame implements ActionListener{
 		plan.setDiary_content(diary_content);
 		plan.setFilename(filename);
 		
+		
 		plan.setClient(diaryPage.mainFrame.client);
 		
+		Icon icon=new Icon();
+		icon.setIcon_idx(1);
+		plan.setIcon(icon);
+		
+		//어떤 아이콘을 선택했는지
 		
 		int result = diaryPage.planDAO.insert(plan);
 		
@@ -235,6 +245,7 @@ public class Popup extends JFrame implements ActionListener{
 				Icon icon = new Icon();
 				icon.setFilename(mark[i]);
 				iconList1.add(icon);
+				//p_icon.add(comboBox);
 				
 			} catch (IOException e) { 
 				e.printStackTrace();

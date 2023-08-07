@@ -53,7 +53,7 @@ public class LoginForm extends JFrame{
 		login_south = new JPanel();
 		login_regist = new JLabel("회원가입");
 		login_line = new JLabel("|");
-		login_find = new JLabel("아이디|비밀번호찾기");
+		login_find = new JLabel("아이디 | 비밀번호찾기");
 		dbManager = new DBManager();
 		clientDAO = new ClientDAO(dbManager);
 		

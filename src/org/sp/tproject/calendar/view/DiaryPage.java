@@ -57,7 +57,7 @@ public class DiaryPage extends Page{
 	
 	//데이터베이스
 	DBManager dbManager = new DBManager();
-	IconDAO iconDAO = new IconDAO(dbManager);
+	//IconDAO iconDAO = new IconDAO(dbManager);
 	PlanDAO planDAO = new PlanDAO(dbManager);
 	ClientDAO clientDAO = new ClientDAO(dbManager);
 	
@@ -70,6 +70,8 @@ public class DiaryPage extends Page{
 		this.mainFrame=mainFrame;
 		
 		setBackground(Color.WHITE);
+		
+		
 		Border border;
 		border=new LineBorder(Color.LIGHT_GRAY, 1, true);
 		
@@ -121,6 +123,7 @@ public class DiaryPage extends Page{
 		//add(p_east, BorderLayout.EAST);
 		
 		login();
+		
 		createCell(); //달력에 사용될 셀 생성하기
 		printTitle(); //달력 제목 출력
 		getPlanList();
@@ -180,8 +183,9 @@ public class DiaryPage extends Page{
 	public void prev() {
 		//다음 월 처리 
 		int mm=cal.get(Calendar.MONTH);
-		cal.set(Calendar.MONTH, 1); //조작
+		cal.set(Calendar.MONTH, mm-1); //조작
 		printTitle();//제목출력
+		getPlanList();
 		printNum();//날짜출력
 	}
 	
@@ -189,8 +193,9 @@ public class DiaryPage extends Page{
 	public void next() {
 		//다음 월 처리 
 		int mm=cal.get(Calendar.MONTH);
-		cal.set(Calendar.MONTH, -1); //조작
+		cal.set(Calendar.MONTH, mm+1); //조작
 		printTitle();//제목출력
+		getPlanList();
 		printNum();//날짜출력
 		
 	}
@@ -221,21 +226,6 @@ public class DiaryPage extends Page{
 		return dd;
 	}
 	
-	//로그인한 회원이 보유한 일정 가져오기
-	public void getPlanList() {
-		int yy=cal.get(Calendar.YEAR);//yy
-		int mm=cal.get(Calendar.MONTH);//mm
-		int dd=cal.get(Calendar.DATE); //dd
-		
-		Plan plan = new Plan(); //empty	
-		plan.setClient(mainFrame.client);
-		plan.setYy(yy);
-		plan.setMm(mm+1);
-		plan.setDd(dd);
-		
-		System.out.println(mainFrame.client);
-		planList = planDAO.selectAll(plan);
-	}
 	
 	//날짜 숫자 출력처리 
 	public void printNum() {
@@ -270,7 +260,7 @@ public class DiaryPage extends Page{
 					for(int k=0;k<planList.size();k++) {
 						Plan plan=planList.get(k);
 						
-						//연, 월, 일이 일치한다면 알맞은 출력
+						//연, 월, 일이 일치한다면 알맞는 출력
 						int yy=cal.get(Calendar.YEAR);
 						int mm=cal.get(Calendar.MONTH)+1;
 						
@@ -297,6 +287,25 @@ public class DiaryPage extends Page{
 		
 		//client=clientDAO.loginCheck(dto);
 	
+	}
+	
+	//로그인한 회원이 보유한 일정 가져오기
+	public void getPlanList() {
+		int yy=cal.get(Calendar.YEAR);//yy
+		int mm=cal.get(Calendar.MONTH);//mm
+		int dd=cal.get(Calendar.DATE); //dd
+		
+		Plan plan = new Plan(); //empty	
+		plan.setClient(mainFrame.client);
+		plan.setYy(yy);
+		plan.setMm(mm+1);
+		plan.setDd(dd);
+		
+		planList=planDAO.selectAll(plan);
+		System.out.println("등록된 일정의 수는 "+planList.size());
+		
+		
+		//System.out.println(mainFrame.client);
 	}
 
 	
