@@ -9,6 +9,7 @@ public class Plan {
 	private int dd;
 	private String diary_title;
 	private String diary_content;
+	private Icon icon;
 	private String filename;
 	private Client client;
 	
@@ -49,6 +50,12 @@ public class Plan {
 	public void setDiary_content(String diary_content) {
 		this.diary_content = diary_content;
 	}
+	public Icon getIcon() {
+		return icon;
+	}
+	public void setIcon(Icon icon) {
+		this.icon = icon;
+	}
 	public String getFilename() {
 		return filename;
 	}
@@ -61,6 +68,8 @@ public class Plan {
 	public void setClient(Client client) {
 		this.client = client;
 	}
+	
+	
 	
 	
 }

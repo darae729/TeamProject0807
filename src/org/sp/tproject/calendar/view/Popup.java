@@ -24,7 +24,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -44,7 +43,7 @@ public class Popup extends JFrame implements ActionListener{
 	JLabel memo;
 	JTextField t_title;
 	JTextArea area;
-	JPanel p_icon; //아이콘이 배치될 패널
+	//JPanel p_icon; //아이콘이 배치될 패널
 	
 	
 	//RoundedButton next;
@@ -63,24 +62,24 @@ public class Popup extends JFrame implements ActionListener{
 	RoundedButton bt;
 	
 	JLabel la_selected; //유저가 선택한 라벨
-	JLabel m_label;
-	JLabel m_label2;
+	JLabel mark_text;
+	JLabel mood_text;
 	
 	NumCell numCell; //저장 버튼 누를때, 어떤 셀을 대상으로 아이콘을 반영할지를 알기위함
-	int index; 
-
-	int dd; //해당 셀을 클릭할 때 날짜를 전달받기 위한 멤버변수 
 	
+	int index; 
+	int dd; //해당 셀을 클릭할 때 날짜를 전달받기 위한 멤버변수 
 	
 	String filename; //유저가 선택한 아이콘
 	
+	
 	public Popup(DiaryPage diaryPage) {
 		this.diaryPage=diaryPage;
-		
-		la_header = new JLabel();
+			
+		la_header = new JLabel("날짜 나옴");
 		border = new JLabel();
-		m_label = new JLabel("mark");
-		m_label2 = new JLabel("mood");
+		mark_text = new JLabel("mark");
+		mood_text = new JLabel("mood");
 		
 		title2 = new JLabel("title");
 		memo = new JLabel("memo");
@@ -93,11 +92,10 @@ public class Popup extends JFrame implements ActionListener{
 		//next = new RoundedButton(">");
 		
 		
-		
 		//스타일 
 		la_header.setFont(new Font("yanol(reg)", Font.BOLD, 28));
-		title2.setFont(new Font("돋움)", Font.BOLD, 15));
-		memo.setFont(new Font("돋움)", Font.BOLD, 15));
+		title2.setFont(new Font("yanol(reg)", Font.BOLD, 15));
+		memo.setFont(new Font("yanol(reg)", Font.BOLD, 15));
 		
 		border.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		
@@ -129,10 +127,11 @@ public class Popup extends JFrame implements ActionListener{
 		
 		
 		
-		add(m_label);
+		add(mark_text);
 		add(comboBox);
-		add(m_label2);
+		add(mood_text);
 		add(comboBox2);
+		createIcon();
 		add(bt);
 		
 		setBounds(400, 300, 350, 450);
@@ -174,6 +173,7 @@ public class Popup extends JFrame implements ActionListener{
 		int yy=diaryPage.cal.get(Calendar.YEAR);
 		int mm=diaryPage.cal.get(Calendar.MONTH);
 		int dd= diaryPage.cal.get(Calendar.DATE);
+		
 		String diary_title=t_title.getText();
 		String diary_content=area.getText();
 		
@@ -190,22 +190,12 @@ public class Popup extends JFrame implements ActionListener{
 		int result = diaryPage.planDAO.insert(plan);
 		
 		if(result > 0) {
+
 			JOptionPane.showMessageDialog(this, "등록 성공!");
-		}
-		
-		
-		/*
-		if(result>0) {
-			Todo todo = new Todo();
-			todo.setPlan(plan);
-			todo.setWork(area.getText());
-			
-			result=diaryPage.todoDAO.insert(todo);
-			if(result>0) {
-				JOptionPane.showConfirmDialog(this, "일정등록 성공");				
-			}
-		}
-		*/
+			this.setVisible(false); //현재창 닫기
+			diaryPage.getPlanList(); //db 불러오기
+			diaryPage.printNum();
+		}				
 	}
 	
 	
@@ -226,7 +216,6 @@ public class Popup extends JFrame implements ActionListener{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	*/
 	
@@ -281,7 +270,6 @@ public class Popup extends JFrame implements ActionListener{
 	}
 	
 	
-	
 	/*
 	public void createIconback() {
 		
@@ -331,7 +319,7 @@ public class Popup extends JFrame implements ActionListener{
 			System.out.println(icon.getFilename());
 			filename = icon.getFilename();
 			
-		}else if(box.equals(comboBox2)) {
+		}else if(box.equals(comboBox2)) { //우측이라면
 			
 			int index = box.getSelectedIndex();
 			Icon icon=iconList2.get(index);

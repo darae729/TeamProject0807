@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.sp.tproject.calendar.domain.Icon;
 import org.sp.tproject.calendar.domain.Plan;
 import org.sp.tproject.main.view.MainFrame;
 
@@ -72,13 +74,14 @@ public class PlanDAO {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		List list=null;
+		List list=new ArrayList();
 		
 		con = dbManager.connect();
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("select * from plan where yy=? and mm=? and dd=? and diary_title=? and diary_content=? and filename=? and client_idx=?");
+		//sb.append("select * from plan where yy=? and mm=? and dd=? and diary_title=? and diary_content=? and filename=? and client_idx=?");
+		sb.append("select * from plan where yy=? and mm=? and dd=?");
 
 		System.out.println(sb.toString());
 		
@@ -86,13 +89,25 @@ public class PlanDAO {
 			pstmt=con.prepareStatement(sb.toString());
 			pstmt.setInt(1, plan.getYy());
 			pstmt.setInt(2, plan.getMm());
-			pstmt.setString(0, null);
-			pstmt.setInt(1, plan.getClient().getClient_idx());
+			pstmt.setInt(3, plan.getDd());
+			
+			//pstmt.setInt(4, plan.getClient().getClient_idx());
 			
 			rs=pstmt.executeQuery();
-			/*while() {
+			
+			
+			while(rs.next()) {
+				Plan dto = new Plan();
+				dto.setPlan_idx(rs.getInt("plan_idx"));
+				dto.setYy(rs.getInt("yy"));
+				dto.setMm(rs.getInt("mm"));
+				dto.setDd(rs.getInt("dd"));
 				
-			}*/
+				Icon icon = new Icon();
+				icon.setFilename(rs.getString("filename"));
+				dto.setIcon(icon);
+			}
+			
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

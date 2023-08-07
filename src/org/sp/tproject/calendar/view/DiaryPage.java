@@ -6,7 +6,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.Calendar;
+import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
@@ -26,9 +28,11 @@ import util.StringManager;
 
 //다이어리 만들기 
 public class DiaryPage extends Page{
+
 	//JPanel p_north;
 	JPanel p_west;
 	JPanel p_center;
+	
 	//JPanel p_east;
 	MainFrame mainFrame;
 	
@@ -51,17 +55,16 @@ public class DiaryPage extends Page{
 	NumCell[][] numCells=new NumCell[6][7]; 
 	
 	
-	
 	//데이터베이스
 	DBManager dbManager = new DBManager();
-	ClientDAO clientDAO = new ClientDAO(dbManager);
 	IconDAO iconDAO = new IconDAO(dbManager);
 	PlanDAO planDAO = new PlanDAO(dbManager);
+	ClientDAO clientDAO = new ClientDAO(dbManager);
 	
-	Client client;
+	//Client client;
 	
 	Popup popup;
-	
+	List<Plan> planList; //일정 정보 목록
 	
 	public DiaryPage(MainFrame mainFrame) {
 		this.mainFrame=mainFrame;
@@ -95,7 +98,6 @@ public class DiaryPage extends Page{
 		p_center.setBackground(Color.WHITE);
 		p_west.setBackground(Color.WHITE);
 		
-		//p_north.setBackground(Color.WHITE);
 		
 		p_west.setPreferredSize(new Dimension(100, 700));
 		p_center.setPreferredSize(new Dimension(750, 800));
@@ -118,15 +120,16 @@ public class DiaryPage extends Page{
 		add(p_center);
 		//add(p_east, BorderLayout.EAST);
 		
+		login();
 		createCell(); //달력에 사용될 셀 생성하기
 		printTitle(); //달력 제목 출력
+		getPlanList();
 		printNum(); //날짜 출력
 		
 		setSize(width, height);
 		setVisible(true);
 		
-
-		
+		popup = new Popup(this);
 		
 		
 		bt_prev.addActionListener((e)->{
@@ -137,12 +140,8 @@ public class DiaryPage extends Page{
 			next();
 		});
 		
-		login();
-		//getPlanList();
-		
+
 	}
-	
-	
 	
 	//셀 만들기 
 	public void createCell() {
@@ -154,8 +153,7 @@ public class DiaryPage extends Page{
 			cell.setTitle(dayTitle[i]);
 			p_center.add(cell);
 		}
-		
-		
+			
 		//날짜 셀 만들기
 		for(int a=0;a<6;a++) { //6층
 			for(int i=0;i<7;i++) { //7호수
@@ -208,7 +206,7 @@ public class DiaryPage extends Page{
 		
 		int day=c.get(Calendar.DAY_OF_WEEK); //1일의 요일 구하기
 		
-		System.out.println(day);
+		//System.out.println(day);
 		return day;//요일 반환
 	}
 	
@@ -223,6 +221,21 @@ public class DiaryPage extends Page{
 		return dd;
 	}
 	
+	//로그인한 회원이 보유한 일정 가져오기
+	public void getPlanList() {
+		int yy=cal.get(Calendar.YEAR);//yy
+		int mm=cal.get(Calendar.MONTH);//mm
+		int dd=cal.get(Calendar.DATE); //dd
+		
+		Plan plan = new Plan(); //empty	
+		plan.setClient(mainFrame.client);
+		plan.setYy(yy);
+		plan.setMm(mm+1);
+		plan.setDd(dd);
+		
+		System.out.println(mainFrame.client);
+		planList = planDAO.selectAll(plan);
+	}
 	
 	//날짜 숫자 출력처리 
 	public void printNum() {
@@ -237,21 +250,36 @@ public class DiaryPage extends Page{
 			}
 		}
 		
-		
 		int startDay=getStartDayOfWeek(); //해당 월이 무슨 요일부터 시작하는지 값을 얻기
 		int lastDate=getLastDateOfMonth(); //해당 월이 며칠까지 있는지 그 값을 얻기
 		
-		System.out.println(lastDate+"까지입니다");
+		System.out.println(lastDate+"까지 입니다");
 		
+		//각 셀에 알맞는 숫자 채우기
 		int count=0; //셀의 순번을 체크하기 위한 변수
 		int num=0; //실제 날짜를 담당할 변수
 		
 		for(int a=0;a<numCells.length;a++) {
 			for(int i=0;i<numCells[a].length;i++) {
 				count++;
-				if(count>=startDay && num<lastDate ) {
+				if(count>=startDay && num<lastDate) {
 					num++;
-					numCells[a][i].setTitle(Integer.toString(num));
+					
+					String value="";
+					
+					for(int k=0;k<planList.size();k++) {
+						Plan plan=planList.get(k);
+						
+						//연, 월, 일이 일치한다면 알맞은 출력
+						int yy=cal.get(Calendar.YEAR);
+						int mm=cal.get(Calendar.MONTH)+1;
+						
+						if(yy==plan.getYy() && mm==plan.getMm() && num==plan.getDd()) {
+							value+=Integer.toString(num)+"\n 메모발견";
+						}
+					}	
+					value+=Integer.toString(num);
+					numCells[a][i].setTitle(value);
 				}
 			}
 		}
@@ -270,19 +298,8 @@ public class DiaryPage extends Page{
 		//client=clientDAO.loginCheck(dto);
 	
 	}
+
 	
-	//로그인한 회원이 보유한 일정 및 todo 가져오기
-	public void getPlanList() {
-		int yy=cal.get(Calendar.YEAR);//yy
-		int mm=cal.get(Calendar.MONTH);//mm
-		
-		Plan plan = new Plan(); //empty
-		plan.setClient(client);
-		plan.setYy(yy);
-		plan.setMm(mm);
-		
-		planDAO.selectAll(plan);
-	}
 	
 }
 

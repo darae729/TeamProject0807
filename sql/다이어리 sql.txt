@@ -8,8 +8,8 @@ create table plan(
   , mm number 
   , dd number 
   , diary_title varchar2(40)
-  , diary_content varchar2(200)
-  , filename clob
+  , diary_content clob
+  , filename varchar2(200)
   
   -- 누구의 일정?
   , client_idx  number 
